@@ -292,9 +292,17 @@
 // - Example: Regex for assertions / locators
 // || const locator = page.getByRole("button").filter({ hasText: /Log (in|out)/ }); 	||
 // -- Matches "Log in" or "Log out" buttons
+// - Example: Running test cases with the same page -- refer to section "Testing running only one page with multiple tests"
+//	||  let page: Page																	||
+//	||  let context: BrowserContext;													||
+//	||  test.beforeAll(async ({browser}) => {											||
+//	||  	context = await browser.newContext();										||
+//	||  	page = await context.newPage();												||
+//	||  	await page.goto("...");														||
+//	|| 	});																				||
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-import { test, expect } from "@playwright/test";
+import { test, expect, BrowserContext, Page } from "@playwright/test";
 
 // Successful simple tests
 // *****************************************************************
@@ -717,4 +725,66 @@ test.describe.skip("testing manual vs recording", async () => {
 // || 	test 2 -> login mickey, add 2 products to cart, assert value of cart
 
 // ❗ Need to make sure there is complete independence of sequence ❗
+// *****************************************************************
+
+// Manual way - Without automation of Playwright
+// *****************************************************************
+// (async () => {
+// 	// Launch Microsoft Edge
+// 	const browser = await chromium.launch({
+// 	  channel: 'msedge', // Specify Edge as the browser
+// 	  headless: false // Set to true if you want headless mode
+// 	});
+
+// 	// Create a new browser context
+// 	const context = await browser.newContext();
+
+// 	// Open a new page
+// 	const page = await context.newPage();
+
+// 	// Navigate to your React app
+// 	await page.goto('http://google.com'); // Change this to your app URL
+
+// 	// Close the browser
+// 	await browser.close();
+//   })();
+// *****************************************************************
+
+// Testing running only one page with multiple tests
+// *****************************************************************
+test.describe.skip("1 page multiple test", async () => {
+	let page: Page;
+	let context: BrowserContext;
+	test.beforeAll(async ({ browser }) => {
+		context = await browser.newContext();
+		page = await context.newPage();
+		await page.goto("http://demo.chetanpanchal.com");
+		console.log("new page");
+	});
+
+	test.afterAll(async ({ browser }) => {
+		await page.close();
+		await context.close();
+		console.log("close page");
+	});
+
+	test("header1 test", async () => {
+		const name = await page.innerText("h1");
+		expect(name).toContain("Display");
+	});
+
+	test("header2 test", async () => {
+		const name = await page.innerText("h2");
+		expect(name).toContain("2nd level");
+	});
+});
+
+// 🔀 --- Input Command Line: --- 🔀
+// 		npx playwright test -g "1 page multiple" --project chromium --workers 1
+// 🔯 ---  Resulting Output:  --- 🔯
+// 		[chromium] › tests\firstdemo.spec.ts:769:6 › 1 page multiple test › header1 test
+// 		new page
+// 		[chromium] › tests\firstdemo.spec.ts:774:6 › 1 page multiple test › header2 test
+// 		close page
+// 🔯 --------------------------- 🔯
 // *****************************************************************
