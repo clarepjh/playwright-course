@@ -35,17 +35,18 @@ export default defineConfig({
 		trace: "on-first-retry",
 	},
 
-	/* Filter tests by glob patterns or regular expressions.
+	// Filter tests by glob patterns or regular expressions.
 	// // Glob patterns or regular expressions to ignore test files.
 	// testIgnore: "*test-assets",
 	// // Glob patterns or regular expressions that match test files.
 	// testMatch: "*todo-tests/*.spec.ts",
-	
-	/* Advanced Configuration
+
+	// Advanced Configuration
 	// // Folder for test artifacts such as screenshots, videos, traces, etc.
 	// outputDir: "test-results",
 	// // path to the global setup files.
-	// globalSetup: require.resolve("./global-setup"),
+	globalSetup: require.resolve("./global/global.setup.ts"),
+	globalTeardown: require.resolve("./global/global.teardown.ts"),
 	// // path to the global teardown files.
 	// globalTeardown: require.resolve("./global-teardown"),
 	// // Each test is given 30 seconds.

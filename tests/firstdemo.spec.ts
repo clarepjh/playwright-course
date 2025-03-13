@@ -59,16 +59,16 @@
 // 7) Resource crunch -- more developers than testers! Adding one line of code will require full-coverage testing again, adding to the crunch.
 // 8) Flaky & flickering tests -- E.g. if the conditions of the function is passable base on certain circumstances,
 //								 -----------------------
-//								 || if (weekend)	   ||
-//								 ||		give discount  ||
-//								 || else			   ||
-//								 ||		no discount	   || ❌
+//								 || if (weekend)	||
+//								 ||	give discount   ||
+//								 || else		||
+//								 ||	no discount     || ❌
 //
 // 							   -- In order to avoid flaky results, have to create "isWeekEnd()" -> mock interface -> test env -> always returns true
 //								 -----------------------
 //								 || if (isWeekEnd())   ||
 //								 || 	give discount  ||
-//								 || else			   ||
+//								 || else	       ||
 //								 || 	no discount    || ✔
 //								 -----------------------
 // 9) Deciphering why tests fail
@@ -195,37 +195,37 @@
 // - Group test case based on functionality! (E2E) try not to group too many groups of test cases together.
 // - example #1: -- 4 testers can work on it in parallel
 // ||	describe - withdraw cash															||
-// ||		describe - normal																||
+// ||		describe - normal															||
 // ||			test - withdrawal for $1000													||
 // ||		describe - alternate flows														||
-// ||			test - invalid card															||
+// ||			test - invalid card														||
 // ||			test - invalid PIN once														||
-// ||			test - invalid PIN more than thrice											||
+// ||			test - invalid PIN more than thrice												||
 // ||	 		test - insufficient balance													||
-// ||		describe - errors																||
-// ||	 		test - network down															||
-// ||	 	describe - admin																||
-// ||			test - ATM does not have enough balance										||
-// ||	 		test - ATM does not have correct denomination								||
+// ||		describe - errors															||
+// ||	 		test - network down														||
+// ||	 	describe - admin															||
+// ||			test - ATM does not have enough balance												||
+// ||	 		test - ATM does not have correct denomination											||
 // - example #2: -- only 1 tester can work at it on a time
 // ||	 describe - withdraw cash															||
 // ||	 	test - withdrawal for $1000														||
 // ||		describe - alternate flows														||
-// ||			test - invalid card															||
+// ||			test - invalid card														||
 // ||			test - invalid PIN once														||
-// ||	 		test - invalid PIN more than thrice											||
+// ||	 		test - invalid PIN more than thrice												||
 // ||	 		test - insufficient balance													||
-// ||			test - network down															||
-// ||			test - ATM does not have enough balance										||
-// ||			test - ATM does not have correct denomination								||
+// ||			test - network down														||
+// ||			test - ATM does not have enough balance												||
+// ||			test - ATM does not have correct denomination											||
 // - example #3: -- putting grouped test cases in different files (based on function) -- multiple people can work on it in parallel
-// ||	 <tests> folder																		||
-// ||	 	withdrawal																		||
-// ||			TC001.withdrawal1000.normal.spec.ts 										|| ❌ What if you need to change the amount?
-// ||			TC001.withdrawal.normal.spec.ts 											|| ✅ Naming of files should be ❗Functional view point❗
+// ||	 <tests> folder																	||
+// ||	 	withdrawal																||
+// ||			TC001.withdrawal1000.normal.spec.ts 												|| ❌ What if you need to change the amount?
+// ||			TC001.withdrawal.normal.spec.ts 												|| ✅ Naming of files should be ❗Functional view point❗
 // ||				test('withdraw $100, ...)												||
 // ||				test('withdraw $1000, ...)												||
-// || 			TC002.withdraw.alternate.spec.ts											||
+// || 			TC002.withdraw.alternate.spec.ts												||
 //
 // - There is no truly 'correct' way to group your test; but preference on functionality as it's consumer point of view!
 // - Keep grooming the test code!
@@ -258,16 +258,16 @@
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // ** What if you require repeated functions **
-// --------------------------------------------------------------------------------------------------------------------------------------------------------\
+// --------------------------------------------------------------------------------------------------------------------------------------------------------
 // - Example:
-// || test1																				||
+// || test1																			||
 // ||	login(page)																		||
-// ||	search product																	||
-// || test2																				||
+// ||	search product																		||
+// || test2																			||
 // ||	login(page)																		||
-// ||	add product to cart																||
+// ||	add product to cart																	||
 // ||	view cart																		||
-// || test3																				||
+// || test3																			||
 // ||	login(page)																		||
 // ||	view profile
 // - Repeated login(page) required for multiple testcase
@@ -279,18 +279,15 @@
 // - Why your test may fail sometimes
 // - Example:
 // || let title = await page.title();
-// || ❌ expect(title).toBe('funny - Google Search)										|| 👎 No waiting, no re-try - may result in consistent results
-// || ❌ if (title === 'funny - Google Search') { ... }									|| 👎 No waiting, no re-try - may result in consistent results
+// || ❌ expect(title).toBe('funny - Google Search)						|| 👎 No waiting, no re-try - may result in consistent results
+// || ❌ if (title === 'funny - Google Search') { ... }						|| 👎 No waiting, no re-try - may result in consistent results
 // || ✅await expect(page).toHaveTitle('funny - Google Search', {timeout: 7000});		|| 👍 Have re-try & waiting
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-//	** Other useful search tools/patterns/functions **
+//	** Other useful search tools/patterns/functions/examples **
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
-// - Example: getAttribute
-//	|| let value = await searchBox.getAttribute("value");
-//	|| console.log(value);
-// - Example: Regex for assertions / locators
-//	|| const locator = page.getByRole("button").filter({ hasText: /Log (in|out)/ }); // -- Matches "Log in" or "Log out" buttons
+// - Example: getAttribute -- refer to section "Testing .goBack() / .goForward() & For loops iteration" (last line of code)
+// - Example: Regex for assertions / locators -- refer to section "Testing Tags" - examples of using regex in ci
 // - Example: Running test cases with the same page -- refer to section "Testing running only one page with multiple tests"
 // - Example: Additional Inline code configurations - slowMo -- refer to section "Testing test.use to configure a test file"
 // - Example: Navigation -- refer to section Testing .goBack() / .goForward() & For loops iteration
@@ -305,6 +302,14 @@
 // - Example: Page Object Patterns -- refer to section "Testing Page Object Pattern (POP)"
 // - Example: Page Object Patterns with Fixture -- refer to section "Testing Page Object Pattern (POP) with fixture"
 // - Example: Built-in Features -- refer to section "Testing built-in fixtures"
+// - Example: Screenshots -- refer to section "Testing Screenshots"
+// - Example: Frames -- refer to section "Testing frames"
+// - Example: Multiple Tabs -- refer to section "Testing Multiple Tabs"
+// - Example: Downloads -- refer to section "Testing Downloads"
+// - Example: Uploads -- refer to section "Testing Uploads"
+// - Example: Global Configs (setup/teardown) -- refer to section "Testing global config setup/teardown"
+// - Example: Mocking -- refer to section "Testing Mocking"
+// - Example: Visual Comparison -- refer to section "Testing Visual Comparison"
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 import { expect, BrowserContext, Page } from "@playwright/test";
@@ -1336,4 +1341,242 @@ test.skip("all built-in fixtures example", async ({
 	const response = await request.get("http://api.github.com");
 	console.log(`API response Status: ${response.status()}`);
 });
+// *****************************************************************
+
+// Testing Screenshots
+// *****************************************************************
+test.skip("screenshot simple", async ({ page }) => {
+	await page.goto("http://google.com");
+	let searchBox = page.getByLabel("Search", { exact: true });
+	let btn = page.getByText("Google Search", { exact: true });
+
+	await page.screenshot({ path: "screenshot.png" });
+	await page.screenshot({
+		path: "highlight screenshot.png",
+		mask: [btn],
+		maskColor: "#000000",
+		style: "textarea[name=q]{border: 2px red solid}",
+	});
+	// path is relative to the project group
+	await searchBox.screenshot({ path: "search-box.png" });
+
+	// - After running the test, you should see the screenshots in the project's files:
+	// ❗ Refer to "screenshot.png" ❗
+	// ❗ Refer to "search-box.png" ❗
+	// ❗ Refer to "highlight screenshot.png" ❗
+});
+// *****************************************************************
+
+// Testing frames
+// *****************************************************************
+test.skip("test frames", async ({ page }) => {
+	await page.goto("http://demo.chetanpanchal.com/Frames.html");
+	await page
+		.frameLocator("frame[name='frameOne']")
+		.getByRole("textbox")
+		.click();
+	await page
+		.frameLocator("frame[name='frameOne']")
+		.getByRole("textbox")
+		.press("Control+a");
+	await page
+		.frameLocator("frame[name='frameOne']")
+		.getByRole("textbox")
+		.fill("Test");
+	await page
+		.frameLocator("frame[name='frameTwo']")
+		.getByRole("textbox")
+		.click();
+	await page
+		.frameLocator("frame[name='frameTwo']")
+		.getByRole("textbox")
+		.press("Control+a");
+	await page
+		.frameLocator("frame[name='frameTwo']")
+		.getByRole("textbox")
+		.fill("Test 2");
+});
+// *****************************************************************
+
+// Testing Multiple Tabs
+// *****************************************************************
+test.skip("testing multiple tabs", async ({ page, context }) => {
+	await page.goto("http://demo.chetanpanchal.com");
+
+	// Storing original page
+	const originalPage = page;
+
+	// issues 2 promises; storing new page.
+	const [newPage] = await Promise.all([
+		context.waitForEvent("page"), // wait for new tab -- returns a page
+		page.locator("#loadContentInWindow").click(), // click the button to open new tab
+	]);
+
+	await printTabs(context);
+
+	await originalPage.bringToFront();
+	await newPage.waitForTimeout(3000);
+
+	await newPage.bringToFront();
+	await newPage.waitForTimeout(3000);
+
+	await newPage.close();
+	await originalPage.bringToFront();
+
+	await printTabs(context);
+});
+
+// function helper created
+async function printTabs(context: BrowserContext) {
+	console.log("--------Current Tabs:");
+	for (const page of context.pages()) {
+		await page.bringToFront();
+
+		// this code will run inside the browser
+		// it will be injected into the browser
+		const windowName = await page.evaluate(() => window.name);
+		console.log(windowName === "" ? "main" : windowName);
+	}
+	console.log("--------End");
+}
+// *****************************************************************
+
+// Testing Downloads
+// *****************************************************************
+test.skip("testing downloads", async ({ page, context }) => {
+	await page.goto("http://the-internet.herokuapp.com/download");
+
+	// Wait for download to start
+	const downloadPromise = page.waitForEvent("download");
+
+	// Click on first file link
+	const firstFile = page
+		.locator('a[href^="download/"]')
+		.getByText("test.txt", { exact: true });
+	const fileName = await firstFile.innerText();
+	await firstFile.click();
+
+	// Wait for the download to complete
+	const download = await downloadPromise;
+	const filePath = `downloads/${fileName}`;
+
+	// Save the file locally
+	// folder "downloads" will be created automatically if not existing
+	await download.saveAs(filePath);
+
+	console.log(`File downloaded: ${filePath}`);
+
+	// Ensure the file exists
+	expect(fs.existsSync(filePath)).toBeTruthy();
+	// ❗ Refer to "downloads > test.txt" ❗
+});
+// *****************************************************************
+
+// Testing Uploads
+// *****************************************************************
+test.skip("testing upload", async ({ page, context }) => {
+	await page.goto("http://the-internet.herokuapp.com/upload");
+
+	const fileInput = page.locator('input[type="file"]').first();
+
+	await fileInput.setInputFiles("downloads/test.txt");
+
+	await page.click('input[type="submit"]');
+
+	await expect(page.locator("#uploaded-files")).toHaveText("test.txt");
+});
+// *****************************************************************
+
+// Testing global config setup/teardown
+// *****************************************************************
+// Added in "playwright.config.ts > "globalSetup: require.resolve("./global-setup/global.setup.ts")," as part of defineConfig
+// Added in "playwright.config.ts > "globalTeardown: require.resolve("./global-teardown/global.teardown.ts")," as part of defineConfig
+// ❗ Refer to "global-setup > global.setup.ts" ❗
+// ❗ Refer to "global-teardown > global.teardown.ts" ❗
+test.skip("menu @globalAC", async ({ page }) => {
+	console.log("Your test depends on the database");
+});
+
+// 🔯 ---  Resulting Output:  --- 🔯
+//		Running global setup if any…
+//		Global setup
+//
+//		Running 1 test using 1 worker
+//		[chromium] › tests\firstdemo.spec.ts:1491:5 › menu @globalAC
+//1		Your test depends on the database
+// 🔯 --------------------------- 🔯
+// - Teardown will not be logged as it will only be done after all the workers are done with all test cases.
+// *****************************************************************
+
+// Testing Mocking
+// *****************************************************************
+// - Why do we need mocking?
+// - Example: test code -> website1 -> click a button -> calls api.mywebsite.com/orders -> orders are rendered
+// 	1. Automation error ❌
+// 	2. Bug in website
+// 	3. Bug in api
+// - Example: test code -> website1 -> click a button -> calls dummy api -> dummy orders are rendered
+// 	1. automation error
+// 	2. Bug in website
+// - Helps minimize cause of failures / isolating test case from dependency
+
+test.skip("mocks a fruit and doesn't call api", async ({ page }) => {
+	// Mock the api call before navigating
+	await page.route("*/**/api/v1/fruits", async (route) => {
+		const json = [{ name: "Berries", id: 21 }];
+		await route.fulfill({ json });
+	});
+
+	// Go to the page
+	await page.goto("http://demo.playwright.dev/api-mocking");
+
+	// Assert that the Berries fruit is visible
+	await expect(page.getByText("Berries")).toBeVisible();
+});
+
+test.skip("gets the json from api and adds a new fruit", async ({ page }) => {
+	// Get the api call response and add to it
+	await page.route("*/**/api/v1/fruits", async (route) => {
+		const response = await route.fetch();
+		const json = await response.json();
+		json.push({ name: "Berries", id: 100 });
+
+		// route.fulfill() is used to intercept a network request and provide a custom response instead of allowing the browser to fetch data from the real server.
+		// Fulfill using the original response, while patching the response body with the given JSON object
+		await route.fulfill({ response, json });
+	});
+
+	// Go to the page
+	await page.goto("http://demo.playwright.dev/api-mocking");
+
+	// Assert that the new fruit is visible
+	await expect(page.getByText("Berries", { exact: true })).toBeVisible();
+});
+// *****************************************************************
+
+// Testing Visual Comparison
+// *****************************************************************
+// Example flow:
+// || Run test -> take a screenshot -> golden screenshot
+// || Run test -> take a screenshot -> Compare with golden screenshot if available
+// - if golden screenshot not available, the second screenshot becomes the golden screenshot.
+
+test.describe.skip("visual comparison test", async () => {
+	test("compare landing page title with golden screenshot", async ({
+		page,
+	}) => {
+		await page.goto("https://playwright.dev");
+		// Only allowing a max of 5 pixels difference
+		await expect(page.locator(".heroTitle_ohkl")).toHaveScreenshot(
+			"landing.png",
+			{ maxDiffPixels: 5 },
+		);
+	});
+});
+
+// - If golden screenshot does not exist, the test will fail with logs:
+// 		- "Error: A snapshot doesn't exist at C:\Users\Admin\Desktop\pw\tests\firstdemo.spec.ts-snapshots\landing-<browser>-win32.png, writing actual."
+// 		- Writing the latest screenshot as the golden screenshot.
+// ❗ Refer to file "firstdemo.spec.ts-snapshots > landing-<browser>-win32.png" ❗
+// 📝 Please delete "firstdemo.spec.ts-snapshots" folder if you want to see the expected failure when snapshot does not exist.
 // *****************************************************************
