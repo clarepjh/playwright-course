@@ -279,30 +279,36 @@
 // - Why your test may fail sometimes
 // - Example:
 // || let title = await page.title();
-// || ❌ expect(title).toBe('funny - Google Search) 								  	   || 👎 No waiting, no re-try - may result in consistent results
-// || ❌ if (title === 'funny - Google Search') { ... }  						  	   || 👎 No waiting, no re-try - may result in consistent results
-// || ✅await expect(page).toHaveTitle('funny - Google Search', {timeout: 7000});  	   || 👍 Have re-try & waiting
+// || ❌ expect(title).toBe('funny - Google Search)										|| 👎 No waiting, no re-try - may result in consistent results
+// || ❌ if (title === 'funny - Google Search') { ... }									|| 👎 No waiting, no re-try - may result in consistent results
+// || ✅await expect(page).toHaveTitle('funny - Google Search', {timeout: 7000});		|| 👍 Have re-try & waiting
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //	** Other useful search tools/patterns/functions **
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 // - Example: getAttribute
-// || let value = await searchBox.getAttribute("value");								||
-// || console.log(value);																||
+//	|| let value = await searchBox.getAttribute("value");
+//	|| console.log(value);
 // - Example: Regex for assertions / locators
-// || const locator = page.getByRole("button").filter({ hasText: /Log (in|out)/ }); 	||
-// -- Matches "Log in" or "Log out" buttons
+//	|| const locator = page.getByRole("button").filter({ hasText: /Log (in|out)/ }); // -- Matches "Log in" or "Log out" buttons
 // - Example: Running test cases with the same page -- refer to section "Testing running only one page with multiple tests"
-//	||  let page: Page																	||
-//	||  let context: BrowserContext;													||
-//	||  test.beforeAll(async ({browser}) => {											||
-//	||  	context = await browser.newContext();										||
-//	||  	page = await context.newPage();												||
-//	||  	await page.goto("...");														||
-//	|| 	});																				||
+// - Example: Additional Inline code configurations - slowMo -- refer to section "Testing test.use to configure a test file"
+// - Example: Navigation -- refer to section Testing .goBack() / .goForward() & For loops iteration
+// - Example: Tags -- refer to section "Testing Tags"
+// - Example: Annotations -- refer to section "Testing Annotations - For reports"
+// - Example: Options on Context -- refer to section "Testing options on context when using built-in browser"
+// - Example: Additional Inline code configurations - Language -- refer to section "Testing configurations using test.use"
+// - Example: Emulation -- refer to section "Testing Emulation"
+// - Example: Data-driven testing -- refer to section "Testing Simple (Data-Driven Testing) DDT"
+// - Example: Fixtures -- refer to section "Testing Fixtures"
+// - Example: Dotenv Configs -- refer to section "Testing dotenv configs"
+// - Example: Page Object Patterns -- refer to section "Testing Page Object Pattern (POP)"
+// - Example: Page Object Patterns with Fixture -- refer to section "Testing Page Object Pattern (POP) with fixture"
+// - Example: Built-in Features -- refer to section "Testing built-in fixtures"
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-import { test, expect, BrowserContext, Page } from "@playwright/test";
+import { expect, BrowserContext, Page } from "@playwright/test";
+import { test } from "./fixtures/parameterize-fixture"; // Import the extended test with `person` fixture
 
 // Successful simple tests
 // *****************************************************************
@@ -787,4 +793,547 @@ test.describe.skip("1 page multiple test", async () => {
 // 		[chromium] › tests\firstdemo.spec.ts:774:6 › 1 page multiple test › header2 test
 // 		close page
 // 🔯 --------------------------- 🔯
+// *****************************************************************
+
+// Testing test.use to configure a test file
+// *****************************************************************
+// 🔻 --- Uncomment from here to try ---- 🔻
+// test.use({ launchOptions: { slowMo: 500, args: ["chrome"] } });
+// 🔺 ---- Uncomment stops here ---- 🔺
+// *****************************************************************
+
+// Testing .goBack() / .goForward() & For loops iteration
+// *****************************************************************
+test.skip("navigation test", async ({ page }) => {
+	await page.goto("http://youtube.com");
+	await page.goto("http://google.com");
+
+	// Playwright has the ability to mock the passage of time (Go forward/Go back)
+	// Go back to the previous page (YouTube)
+	await page.goBack();
+	// Go forward to the next page (DuckDuckGo)
+	await page.goForward();
+
+	// Wait for the page content to load and retrieve the full HTML source
+	// let html = await page.content();
+	// console.log(html);
+
+	// // Simulate typing the text "funny" into the currently focused input field
+	// await page.keyboard.insertText("funny");
+
+	// // Simulate a mouse click at coordinates (1,1) on the page
+	// await page.mouse.click(1, 1);
+
+	// Locate the search box using its label (ensuring an exact match)
+	let searchBox = page.getByLabel("Search", { exact: true });
+
+	// Iterate over all list items and retrieve their inner text (though the loop doesn't do anything)
+	for (const link of await page.getByRole("link").all()) {
+		console.log("Iterating the links: ", await link.allTextContents());
+		// console.log(await link.innerText());
+	}
+
+	// Get all link elements on the page (all text contents)
+	const linkTexts = await page.getByRole("link").allInnerTexts();
+	console.log("Link texts: ", linkTexts);
+
+	// Get and log the bounding box (position and dimensions) of the search box
+	console.log("Bounding Box: ", await searchBox.boundingBox());
+
+	// Get and log the "name" attribute of the search box
+	console.log("Name Attribute: ", await searchBox.getAttribute("name"));
+});
+// *****************************************************************
+
+// Testing Tags
+// *****************************************************************
+test.skip(
+	"test 1",
+	{
+		tag: ["@fast", "@one"],
+	},
+	async () => {},
+);
+
+test.skip(
+	"test 2",
+	{
+		tag: ["@slow", "@two"],
+	},
+	async () => {},
+);
+
+test.skip(
+	"test 3",
+	{
+		tag: ["@fast", "@three"],
+	},
+	async () => {},
+);
+
+test.skip(
+	"test 4",
+	{
+		tag: ["@slow", "@fast"],
+	},
+	async () => {},
+);
+
+// - Listing all tests tagged with "@fast"
+// 🔀 --- Input Command Line: --- 🔀
+// 		npx playwright test demo --grep "@fast" --project chromium --list
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › firstdemo.spec.ts:846:5 › test 1
+//		[chromium] › firstdemo.spec.ts:862:5 › test 3
+//		[chromium] › firstdemo.spec.ts:870:5 › test 4
+// 🔯 --------------------------- 🔯
+
+// - Listing all tests tagged without "@fast"
+// 🔀 --- Input Command Line: --- 🔀
+//		npx playwright test demo --grep-invert "@fast" --project chromium --list
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › firstdemo.spec.ts:311:6 › testing google search page
+//		[chromium] › firstdemo.spec.ts:318:6 › testing bing search page
+//		[chromium] › firstdemo.spec.ts:323:6 › testing youtube page
+//		[chromium] › firstdemo.spec.ts:332:6 › testing google search page for india
+//		[chromium] › firstdemo.spec.ts:356:6 › testing bing search page for india
+//		[chromium] › firstdemo.spec.ts:390:6 › testing duckduckgo search page for india
+//		[chromium] › firstdemo.spec.ts:407:6 › searching klook
+//		[chromium] › firstdemo.spec.ts:431:6 › get started link
+//		[chromium] › firstdemo.spec.ts:452:6 › Group google search home page › go to google
+//		[chromium] › firstdemo.spec.ts:457:6 › Group google search home page › go to google #2
+//		[chromium] › firstdemo.spec.ts:466:6 › testing selector
+//		[chromium] › firstdemo.spec.ts:489:6 › testing duckduckgo testing selector
+//		[chromium] › firstdemo.spec.ts:576:6 › testing codegen
+//		[chromium] › firstdemo.spec.ts:598:6 › testing manual vs recording › testing manual demo
+//		[chromium] › firstdemo.spec.ts:608:6 › testing manual vs recording › testing recording demo
+//		[chromium] › firstdemo.spec.ts:773:6 › 1 page multiple test › header1 test
+//		[chromium] › firstdemo.spec.ts:778:6 › 1 page multiple test › header2 test
+//		[chromium] › firstdemo.spec.ts:803:6 › navigation test
+//		[chromium] › firstdemo.spec.ts:854:5 › test 2
+// 🔯 --------------------------- 🔯
+
+// - Listing all tests with "@fast" OR "@slow" tag using regex
+// 🔀 --- Input Command Line: --- 🔀
+// 		npx playwright test --grep "@fast|@slow" --project chromium --list
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › firstdemo.spec.ts:846:5 › test 1
+//		[chromium] › firstdemo.spec.ts:854:5 › test 2
+//		[chromium] › firstdemo.spec.ts:862:5 › test 3
+//		[chromium] › firstdemo.spec.ts:870:5 › test 4
+// 🔯 --------------------------- 🔯
+
+// - Listing all tests with "@fast" AND "@slow" tag using regex
+// 🔀 --- Input Command Line: --- 🔀
+// 		npx playwright test --grep "(?=.*@fast)(?=.*@slow)" --project chromium --list
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › firstdemo.spec.ts:869:5 › test 4
+// 🔯 --------------------------- 🔯
+// *****************************************************************
+
+// Testing skipping by conditions
+// *****************************************************************
+test.describe.skip("Chromium only", () => {
+	test.skip(({ browserName }) => browserName !== "chromium", "Chromium only!");
+	// Any tests that run here will only be for Chromium only!
+	// The other tests that does not meet the condition will be skipped.
+
+	test("Test 2", async ({ page }) => {
+		await page.goto("http://google.com");
+	});
+
+	test("Test 1", async ({ page }) => {
+		await page.goto("http://youtube.com");
+	});
+});
+// *****************************************************************
+
+// Testing test.fail(..) -- Expect to fail
+// *****************************************************************
+// test.fail("Must fail", async ({ page }) => {
+// 	// Will run the test but will expect test to fail
+// 	await page.goto("http://youtube.com");
+// });
+// *****************************************************************
+
+// Testing test.fixme(..) -- Essentially another type of skip
+// *****************************************************************
+// test.fixme("Must fix", async ({ page }) => {
+// 	await page.goto("http://youtube.com");
+// });
+// *****************************************************************
+
+// Testing test.slow() -- Triple timeout if not set
+// *****************************************************************
+test.skip("slow test, triple timeout", async ({ page }) => {
+	test.slow();
+	await page.goto("http://youtube.com");
+});
+// *****************************************************************
+
+// Testing Annotations - for reports
+// *****************************************************************
+test.skip(
+	"test a page with annotation",
+	{
+		annotation: {
+			type: "issue",
+			description: "http://github.com/microsoft/playwright/issues/123",
+		},
+	},
+	async ({ page }) => {},
+);
+
+test.describe.skip(
+	"report tests",
+	{
+		annotation: {
+			type: "category",
+			description: "report",
+		},
+	},
+	() => {
+		test("test report header", async ({ page }) => {
+			//...
+		});
+	},
+);
+
+test.skip(
+	"test full report",
+	{
+		annotation: [
+			{
+				type: "issue",
+				description: "http://github.com/microsoft/playwright/issues/123",
+			},
+			{ type: "performance", description: "very slow tests!" },
+		],
+	},
+	async ({ page }) => {},
+);
+
+test.skip("Pushing in your own annotation", async ({ page, browser }) => {
+	test.info().annotations.push({
+		type: "browser version",
+		description: browser.version(),
+	});
+});
+// *****************************************************************
+
+// Testing options on context when using built-in browser
+// *****************************************************************
+test.skip("should inherit use options on context when using built-in browser fixture", async ({
+	browser,
+}) => {
+	const context = await browser.newContext({
+		userAgent: "Custom",
+		viewport: { height: 300, width: 300 },
+	});
+	const page = await context.newPage();
+	expect(await page.evaluate(() => navigator.userAgent)).toBe("Custom");
+	expect(await page.evaluate(() => window.innerWidth)).toBe(300);
+	await context.close();
+});
+// *****************************************************************
+
+// Testing configurations using test.use (e.g. in different language)
+// *****************************************************************
+test.describe.skip("example", async () => {
+	test.use({
+		locale: "de-DE",
+		geolocation: { longitude: 41.900221, latitude: 12.492348 },
+		permissions: ["geolocation"],
+		colorScheme: "dark",
+	});
+
+	test("example german", async ({ page, context }) => {
+		// setGeolocation does not work at the moment;
+		// await context.setGeolocation({ longitude: 41.900221, latitude: 12.492348 });
+
+		await page.goto("https://maps.google.com");
+		await expect(page).toHaveTitle("Google Maps");
+	});
+});
+// *****************************************************************
+
+// Testing Emulation
+// *****************************************************************
+// Setting default viewport in test file
+// 🔻 --- Uncomment to try --- 🔻
+// test.use({ viewport: { width: 1600, height: 1200 } });
+// 🔺 --- Uncomment stops here --- 🔺
+
+test.skip("my test", async ({ page }) => {
+	await page.goto("http://youtube.com");
+});
+
+test.describe.skip("specific viewport block", () => {
+	// "my test" will ignore the default viewport set earlier and use this instead
+	test.use({ viewport: { width: 500, height: 500 } });
+
+	test("my test", async ({ page }) => {
+		await page.goto("http://youtube.com");
+	});
+});
+// *****************************************************************
+
+// Testing Simple (Data-Driven Testing) DDT
+// *****************************************************************
+// Names have to be unique or error will flag!
+const people = ["Alex", "Tom", "Harry", "Meep"];
+
+// Playwright will recognize this as 4 different tests rather than 1.
+// Can even iterate with the title/name of the test case.
+for (const name of people) {
+	test.skip(`testing with ${name}`, async () => {
+		console.log(`Name: ${name}`);
+	});
+}
+
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › tests\firstdemo.spec.ts:1078:6 › testing with Alex
+//		Name: Alex
+//		[chromium] › tests\firstdemo.spec.ts:1078:6 › testing with Harry
+//		Name: Harry
+//		[chromium] › tests\firstdemo.spec.ts:1078:6 › testing with Tom
+//		Name: Tom
+//		[chromium] › tests\firstdemo.spec.ts:1078:6 › testing with Meep
+//		Name: Meep
+// 🔯 --------------------------- 🔯
+// *****************************************************************
+
+// Testing Fixtures -- Customizing page & DDT
+// *****************************************************************
+// - To create your own fixture, there are 2 ways:
+// 1) 🌟 import { test } from "./fixtures/parameterize-fixture"; 🌟
+//		-  Creating your own extended fixture file and importing it instead.
+// 	   ❗ Please refer to file "fixtures > parameterize-fixture" ❗
+// 2) 🌟 In config file, set under "use" -- person: "Test person 3" 🌟 (Doesn't work at the moment)
+//	   ❗ Please refer to "playwright.config.ts" file -> section "use"
+
+// - You can even override the 'page' to make it customizable.
+// ❗ Uncomment line 10-16 in "fixtures > parameterize-fixture" ❗
+
+// File-level `test.use()` (default for all tests in this file)
+test.use({ person: "Test Person" });
+
+// When line 10-16 is uncommented in "fixtures > parameterize-fixture", it will run the page.goto<..> when page is indicated in the test."
+test.skip("File level person", async ({ page, person }) => {
+	console.log(`Testing with person: ${person}`);
+});
+
+test.describe.skip("Group level person", () => {
+	// Group-level `test.use()` (overrides the file-level setting)
+	test.use({ person: "Test Person 2" });
+
+	test("test 2", async ({ page, person }) => {
+		console.log(`Testing with person: ${person}`);
+	});
+});
+
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › tests\firstdemo.spec.ts:1111:5 › test with person
+//		Testing with person: Test Person
+//		[chromium] › tests\firstdemo.spec.ts:1119:6 › para group › test 2
+//		Testing with person: Test Person 2
+// 🔯 --------------------------- 🔯
+// *****************************************************************
+
+// Testing dotenv configs
+// *****************************************************************
+// 1) If want to config globally, can uncomment line 7-9 in "playwright.config.ts"
+// 2) Else, have to import accordingly & use dotenv.config() for code/test/file level
+// 	- "npm install dotenv"
+// 	- include "import dotenv from "dotenv";"
+// 	- include "dotenv.config();"
+
+import dotenv from "dotenv";
+dotenv.config();
+test.skip(`example test: env vars`, async ({ page }) => {
+	console.log(process.env.USER_NAME ?? "default_un");
+	console.log(process.env.PASSWORD ?? "default_pw");
+});
+// *****************************************************************
+
+// Testing reading from csv file
+// *****************************************************************
+// - To read from csv file
+// 1) 🌟 Create csv file 🌟
+// 	   ❗ Please refer to file "data > input.csv" ❗
+// 2) 🌟 npm install csv-parse 🌟
+// 3) 🌟 import { parse } from "csv-parse/sync" , fs and path 🌟
+
+import fs from "fs";
+import path from "path";
+import { parse } from "csv-parse/sync";
+import { ToDoPage } from "./pages/TodoPage";
+
+const records = parse(
+	fs.readFileSync(path.join(__dirname, "./data/input.csv")),
+	{
+		columns: true,
+		skip_empty_lines: true,
+	},
+);
+
+// looping through records of csv file (not including header)
+// Playwright is recognizing 3 tests in total (there are 3 rows of data in the .csv file)
+for (const record of records) {
+	test.skip(`test ${record.username}`, async ({ page }) => {
+		console.log(record.username, record.password, record.some_value);
+	});
+}
+
+// 🔯 ---  Resulting Output:  --- 🔯
+//		[chromium] › tests\firstdemo.spec.ts:1180:6 › test testuser
+//		testuser secret data123
+//		[chromium] › tests\firstdemo.spec.ts:1180:6 › test testuser2
+//		testuser2 encrypt testinfo
+//		[chromium] › tests\firstdemo.spec.ts:1180:6 › test testuser1
+//		testuser1 verysecret info123}
+// 🔯 --------------------------- 🔯
+// *****************************************************************
+
+// Testing Page Object Pattern (POP)
+// *****************************************************************
+// - If you have a function that needs to be called all the time, e.g.
+// || test: login
+// || 	goto login page
+// || 	find username field
+// || 	type username
+// || 	find pw field
+// || 	type pw
+// || 	submit
+// - Make 'login' a key word for you
+
+// - create a library of keywords - e.g. fn login(username, password) {}
+// - define helper functions with appropriate parameters
+// - import the function and call it.
+
+// Example of creating a login function helper
+export function login(username: string, password: string) {
+	console.log(username, password);
+	// || goto login page
+	// || find username field
+	// || type username
+	// || find pw field
+	// || type pw
+	// || submit
+}
+
+// Example: testing login to a website, add product into cart and assert the cart total
+test.skip("Testing function helper", () => {
+	login("myusername", "mypassword");
+	// addProductToCart('Pen')
+	// assertCartTotal(2000);
+});
+
+// Theory example:
+// ----------------------------------------------
+// - Creating a class
+// 	AddProductPage {
+// 		repository of locators
+// 		login(username, pw)
+// 		addProductToCart(productTitle){}
+// 		assertCartTotal(productPrice){}
+// 	}
+
+// - In our test, we can make use of the class.
+// for (x in data) {
+// 	test("", () => {
+// 		let pageObject = new AddProductPage()
+// 		pageObject.login("username", "mypassword")
+// 		pageObject.addProductToCart("Pen")
+// 		pageObject.assertCartTotal(200)
+// 		})
+// }
+// ----------------------------------------------
+
+// 🌟 Testing with actual customized class
+// ❗ Refer to "pages -> ToDoPage" ❗
+test.describe.skip("todo test without context", () => {
+	let todoPage: ToDoPage;
+	test.beforeEach(async ({ page }) => {
+		todoPage = new ToDoPage(page);
+		await todoPage.goto();
+		await todoPage.addToDo("item1");
+		await todoPage.addToDo("item2");
+	});
+
+	test.afterEach(async () => {
+		await todoPage.removeAll();
+	});
+
+	test("should add an item", async () => {
+		await todoPage.addToDo("my item");
+	});
+
+	test("should remove an item", async () => {
+		await todoPage.remove("item1");
+	});
+});
+// *****************************************************************
+
+// Testing Page Object Pattern (POP) with fixture
+// *****************************************************************
+// ❗ Refer to "pages -> ToDoPage" ❗
+
+import { test as base } from "@playwright/test";
+
+const testFixture = base.extend<{ toDoPage: ToDoPage }>({
+	toDoPage: async ({ page }, use) => {
+		const toDoPage = new ToDoPage(page);
+		await toDoPage.goto();
+		await toDoPage.addToDo("item 123");
+		await toDoPage.addToDo("item 456");
+		await use(toDoPage);
+		await toDoPage.removeAll();
+	},
+});
+
+testFixture.skip("should add an item", async ({ toDoPage }) => {
+	await toDoPage.addToDo("my item");
+});
+
+testFixture.skip("should remove an item", async ({ toDoPage }) => {
+	await toDoPage.remove("item1");
+});
+// *****************************************************************
+
+// Testing built-in fixtures
+// *****************************************************************
+test.skip("all built-in fixtures example", async ({
+	page,
+	browserName,
+	browser,
+	context,
+	request,
+	baseURL,
+	headless,
+	isMobile,
+}, testInfo) => {
+	// TestInfo is the second parameter
+
+	console.log(`Browser Name: ${browserName}`);
+	console.log(`headless: ${headless}`);
+	console.log(`isMobile: ${isMobile}`);
+	console.log(`baseURL: ${baseURL}`);
+
+	console.log(`Test File: ${testInfo.file}`);
+	console.log(`Test Title: ${testInfo.title}`);
+	console.log(`Test Retries: ${testInfo.retry}`);
+
+	// Browser and Context
+	console.log(`Browser Version: ${browser.version()}`);
+	console.log(`Context Cookies: ${await context.cookies()}`);
+
+	// Page Navigation
+	await page.goto(baseURL ?? "http://google.com");
+	expect(await page.title()).toBe("Google");
+
+	// API Request
+	const response = await request.get("http://api.github.com");
+	console.log(`API response Status: ${response.status()}`);
+});
 // *****************************************************************
